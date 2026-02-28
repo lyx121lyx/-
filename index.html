@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>三角洲行动 - 小鱼的抽取终端</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", "WenQuanYi Micro Hei", sans-serif;
+        }
+
+        body {
+            background: #fff5f8;
+            color: #e66490;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            background-image: 
+                radial-gradient(#ffccd5 2px, transparent 2px),
+                radial-gradient(#ffccd5 2px, transparent 2px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+        }
+
+        .box {
+            width: 100%;
+            max-width: 1200px;
+            background: #fff;
+            border: 3px solid #ff99bb;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 20px rgba(255, 153, 187, 0.2);
+            text-align: center;
+            transform: rotate(-0.5deg);
+        }
+
+        .title {
+            font-size: 28px;
+            margin-bottom: 30px;
+            background: linear-gradient(90deg, #ff6699, #ff3366);
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 2px 2px 4px rgba(255, 102, 153, 0.1);
+            font-weight: bold;
+        }
+
+        .home-buttons {
+            margin: 40px 0;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: #ff99bb;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 16px 40px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(255, 153, 187, 0.3);
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background: #ff6699;
+            transform: scale(1.08) rotate(1deg);
+            box-shadow: 0 6px 12px rgba(255, 102, 153, 0.4);
+        }
+
+        .btn:active {
+            transform: scale(0.98) rotate(0.5deg);
+        }
+
+        .btn:disabled {
+            background: #ffcccc;
+            color: #ff9999;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        #singlePanel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin: 20px auto;
+            max-width: 800px;
+            display: none;
+        }
+
+        #teamPanel {
+            display: none;
+            margin: 20px auto;
+            max-width: 800px;
+        }
+
+        .map-card {
+            width: 140px;
+            margin: 0 auto 20px;
+        }
+
+        .team-member {
+            margin-bottom: 30px;
+        }
+
+        .member-title {
+            color: #ff6699;
+            font-size: 18px;
+            margin-bottom: 10px;
+            text-align: left;
+            border-bottom: 2px dashed #ff99bb;
+            padding-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .member-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+        }
+
+        .card {
+            background: #fff0f5;
+            border: 2px solid #ff99bb;
+            border-radius: 15px;
+            padding: 15px;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(255, 153, 187, 0.1);
+        }
+
+        .card::before {
+            content: "♥";
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            color: #ff99bb;
+            opacity: 0.5;
+            font-size: 12px;
+        }
+
+        .card:hover {
+            transform: translateY(-5px) rotate(1deg);
+            box-shadow: 0 8px 15px rgba(255, 153, 187, 0.2);
+        }
+
+        .card img {
+            width: 100%;
+            height: 110px;
+            object-fit: contain;
+            background: #fff;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            color: #ff6699;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            border: 1px solid #ffcccc;
+        }
+
+        .card .name {
+            color: #ff3366;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .card .label {
+            font-size: 13px;
+            margin-bottom: 5px;
+            color: #ff99bb;
+        }
+
+        @keyframes spin {
+            0% { opacity: 0.7; transform: scale(0.98) rotate(-1deg); }
+            50% { opacity: 1; transform: scale(1.02) rotate(1deg); box-shadow: 0 0 20px #ff99bb; }
+            100% { opacity: 0.7; transform: scale(0.98) rotate(-1deg); }
+        }
+
+        @keyframes flash {
+            0% { border-color: #ff99bb; }
+            50% { border-color: #ff3366; box-shadow: 0 0 20px #ffcccc; }
+            100% { border-color: #ff99bb; }
+        }
+
+        .animate-spin {
+            animation: spin 0.15s linear infinite;
+        }
+
+        .animate-flash {
+            animation: flash 0.4s linear infinite;
+        }
+
+        .back-btn {
+            background: #ffb3c6;
+            margin-bottom: 10px;
+            display: none;
+        }
+
+        .history-box {
+            margin-top: 30px;
+            text-align: left;
+            background: #fff0f5;
+            padding: 15px;
+            border-radius: 15px;
+            border: 2px solid #ffcccc;
+        }
+
+        .history-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #ff6699;
+            font-weight: bold;
+        }
+
+        .history-list {
+            max-height: 250px;
+            overflow-y: auto;
+            border-top: 2px dashed #ffcccc;
+            padding-top: 10px;
+        }
+
+        .history-item {
+            padding: 8px 10px;
+            border-bottom: 1px dashed #ffcccc;
+            color: #ff6699;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .history-item span {
+            color: #ff3366;
+            font-weight: bold;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #fff0f5;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ffcccc;
+            border-radius: 10px;
+            border: 2px solid #fff0f5;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff99bb;
+        }
+
+        @media (max-width: 768px) {
+            #singlePanel, .member-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .map-card {
+                width: 100%;
+            }
+            .box {
+                transform: rotate(0);
+                padding: 20px;
+            }
+            .card:hover {
+                transform: translateY(-3px) rotate(0);
+            }
+            .title {
+                font-size: 24px;
+            }
+            .btn {
+                padding: 12px 30px;
+                font-size: 16px;
+            }
+        }
+
+        #settingsPanel {
+            display: none;
+            margin: 20px auto;
+            max-width: 900px;
+            background: #fff0f5;
+            border-radius: 15px;
+            border: 2px solid #ff99bb;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .settings-title {
+            font-size: 20px;
+            color: #ff6699;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 2px dashed #ff99bb;
+            padding-bottom: 10px;
+        }
+
+        .settings-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 10px;
+            border: 1px solid #ffcccc;
+        }
+
+        .section-title {
+            font-size: 18px;
+            color: #ff3366;
+            margin-bottom: 10px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: #ffb3c6;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 5px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #ff99bb;
+        }
+
+        .item-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px dashed #ffcccc;
+            border-radius: 8px;
+        }
+
+        .item-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px;
+            border-radius: 5px;
+            transition: 0.2s;
+        }
+
+        .item-checkbox:hover {
+            background: #fff5f8;
+        }
+
+        .item-checkbox input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #ff6699;
+            cursor: pointer;
+        }
+
+        .item-checkbox label {
+            color: #ff6699;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .settings-footer {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .save-btn {
+            background: #ff6699;
+        }
+
+        .cancel-btn {
+            background: #ffcccc;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <div class="title">三角洲行动 · 小鱼的抽取终端</div>
+
+    <div class="home-buttons" id="home">
+        <button class="btn" onclick="showSingle()">单人抽取 ✨</button>
+        <button class="btn" onclick="showTeam()">组队抽取🎀</button>
+        <button class="btn" onclick="showSettings()">设置 ⚙️</button>
+    </div>
+
+    <button class="btn back-btn" id="backBtn" onclick="goBack()">返回首页 🏠</button>
+
+    <div id="settingsPanel">
+        <div class="settings-title">抽取数据设置 📝</div>
+        
+        <div class="settings-section">
+            <div class="section-title">
+                <span>干员</span>
+                <div class="section-actions">
+                    <button class="action-btn" onclick="selectAll('operator')">全选</button>
+                    <button class="action-btn" onclick="deselectAll('operator')">取消全选</button>
+                </div>
+            </div>
+            <div class="item-list" id="operatorList"></div>
+        </div>
+
+        <div class="settings-section">
+            <div class="section-title">
+                <span>地图</span>
+                <div class="section-actions">
+                    <button class="action-btn" onclick="selectAll('map')">全选</button>
+                    <button class="action-btn" onclick="deselectAll('map')">取消全选</button>
+                </div>
+            </div>
+            <div class="item-list" id="mapList"></div>
+        </div>
+
+        <div class="settings-section">
+            <div class="section-title">
+                <span>主武器</span>
+                <div class="section-actions">
+                    <button class="action-btn" onclick="selectAll('primary')">全选</button>
+                    <button class="action-btn" onclick="deselectAll('primary')">取消全选</button>
+                </div>
+            </div>
+            <div class="item-list" id="primaryList"></div>
+        </div>
+
+        <div class="settings-section">
+            <div class="section-title">
+                <span>头盔</span>
+                <div class="section-actions">
+                    <button class="action-btn" onclick="selectAll('helmet')">全选</button>
+                    <button class="action-btn" onclick="deselectAll('helmet')">取消全选</button>
+                </div>
+            </div>
+            <div class="item-list" id="helmetList"></div>
+        </div>
+
+        <div class="settings-section">
+            <div class="section-title">
+                <span>护甲</span>
+                <div class="section-actions">
+                    <button class="action-btn" onclick="selectAll('armor')">全选</button>
+                    <button class="action-btn" onclick="deselectAll('armor')">取消全选</button>
+                </div>
+            </div>
+            <div class="item-list" id="armorList"></div>
+        </div>
+
+        <div class="settings-footer">
+            <button class="btn save-btn" onclick="saveSettings()">保存设置 💾</button>
+            <button class="btn cancel-btn" onclick="cancelSettings()">取消 ❌</button>
+        </div>
+    </div>
+
+    <div id="singlePanel">
+        <div class="card">
+            <div class="label">干员</div>
+            <img id="s_op" src="默认卡片.png">
+            <div class="name" id="s_op_txt">等待抽取</div>
+        </div>
+        <div class="card">
+            <div class="label">地图</div>
+            <img id="s_map" src="默认卡片.png">
+            <div class="name" id="s_map_txt">等待抽取</div>
+        </div>
+        <div class="card">
+            <div class="label">主武器</div>
+            <img id="s_wp" src="默认卡片.png">
+            <div class="name" id="s_wp_txt">等待抽取</div>
+        </div>
+        <div class="card">
+            <div class="label">头盔</div>
+            <img id="s_ht" src="默认卡片.png">
+            <div class="name" id="s_ht_txt">等待抽取</div>
+        </div>
+        <div class="card">
+            <div class="label">护甲</div>
+            <img id="s_ar" src="默认卡片.png">
+            <div class="name" id="s_ar_txt">等待抽取</div>
+        </div>
+        <button class="btn" onclick="drawSingle()" style="grid-column: 1/-1; margin-top: 10px;">点击随机 🎲</button>
+    </div>
+
+    <div id="teamPanel">
+        <div class="card map-card">
+            <div class="label">地图</div>
+            <img id="t_map"src="默认卡片.png">
+            <div class="name" id="t_map_txt">等待抽取</div>
+        </div>
+
+        <div class="team-member">
+            <div class="member-title">队员 1 💖</div>
+            <div class="member-cards">
+                <div class="card">
+                    <div class="label">干员</div>
+                    <img id="t1_op" src="默认卡片.png">
+                    <div class="name" id="t1_op_txt">—</div>
+                </div>
+                <div class="card">
+                    <div class="label">武器</div>
+                    <img id="t1_wp" src="默认卡片.png">
+                    <div class="name" id="t1_wp_txt">—</div>
+                </div>
+                <div class="card">
+                    <div class="label">头盔</div>
+                    <img id="t1_ht" src="默认卡片.png">
+                    <div class="name" id="t1_ht_txt">—</div>
+                </div>
+                <div class="card">
+                    <div class="label">护甲</div>
+                    <img id="t1_ar" src="默认卡片.png">
+                    <div class="name" id="t1_ar_txt">—</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="team-member">
+            <div class="member-title">队员 2 💛</div>
+            <div class="member-cards">
+                <div class="card">
+                    <div class="label">干员</div>
+                    <img id="t2_op" src="默认卡片.png">
+                    <div class="name" id="t2_op_txt">—</div>
+                </div>
+                <div class="card">
+                    <div class="label">武器</div>
+                    <img id="t2_wp" src="默认卡片.png">
+                    <div class="name" id="t2_wp_txt">—</div>
+                </div>
+                <div class="card">
+                    <div class="label">头盔</div>
+                    <img id="t2_ht" src="默认卡片.png">
+                    <div class="name" id="t2_ht_txt">—</div>
+                </div>
+                <div class="card">
+                    <div class="label">护甲</div>
+                    <img id="t2_ar" src="默认卡片.png">
+                    <div class="name" id="t2_ar_txt">—</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="team-member">
+            <div class="member-title">队员 3 💜</div>
+            <div class="member-cards">
+                <div class="card">
+                    <div class="label">干员</div>
+                    <img id="t3_op" src="默认卡片.png">
+                    <div class="name" id="t3_op_txt">—</div>
+                </div>
+                <div class="card">
+                    <div class="label">武器</div>
+                    <img id="t3_wp" src="默认卡片.png">
+                    <div class="name" id="t3_wp_txt">—</div>
+                </div>
+                <div class="card">
+                    <div class="label">头盔</div>
+                    <img id="t3_ht" src="默认卡片.png">
+                    <div class="name" id="t3_ht_txt">—</div>
+                </div>
+                <div class="card">
+                    <div class="label">护甲</div>
+                    <img id="t3_ar" src="默认卡片.png">
+                    <div class="name" id="t3_ar_txt">—</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn" onclick="drawTeam()" style="margin-top: 20px; width: 100%; max-width: 800px;">随机小队 🎉</button>
+    </div>
+
+    <div class="history-box">
+        <div class="history-title">📜 抽取历史记录</div>
+        <div class="history-list" id="historyList"></div>
+    </div>
+</div>
+
+<script>
+// 数据存储 - 修复语法错误
+const data = {
+    operator: [
+        { name: "红狼", img: "红狼.png" },
+        { name: "威龙", img: "威龙.png" },
+        { name: "疾风", img: "疾风.png" },
+        { name: "无名", img: "无名.png" },
+        { name: "蜂医", img: "蜂医.png" },
+        { name: "蛊", img: "蛊.png" },
+        { name: "蝶", img: "蝶.png" },
+        { name: "露娜", img: "露娜.png" },
+        { name: "骇爪", img: "骇爪.png" },
+        { name: "银翼", img: "银翼.png" },
+        { name: "牧羊人", img: "牧羊人.png" },
+        { name: "乌鲁鲁", img: "乌鲁鲁.png" },
+        { name: "深蓝", img: "深蓝.png" },
+        { name: "比特", img: "比特.png" }
+    ],
+    map: [
+        { name: "零号大坝-常规", img: "零号大坝-常规.png" },
+        { name: "零号大坝-机密", img: "零号大坝-机密.png" },
+        { name: "长弓溪谷-常规", img: "长弓溪谷-常规.png" },
+        { name: "长弓溪谷-机密", img: "长弓溪谷-机密.png" },
+        { name: "航天基地-机密", img: "航天基地-机密.png" },
+        { name: "航天基地-绝密", img: "航天基地-绝密.png" },
+        { name: "巴克什-机密", img: "巴克什-机密.png" },
+        { name: "巴克什-绝密", img: "巴克什-绝密.png" },
+        { name: "潮汐监狱-绝密", img: "潮汐监狱-绝密.png" }
+    ],
+    primary: [
+{ name: "KC17 突击步枪", img: "KC17 突击步枪.png" },
+{ name: "M16A4 突击步枪", img: "M16A4 突击步枪.png" },
+{ name: "SG552 突击步枪", img: "SG552 突击步枪.png" },
+{ name: "AKS-74U 突击步枪", img: "AKS-74U 突击步枪.png" },
+{ name: "腾龙突击步枪", img: "腾龙突击步枪.png" },
+{ name: "QBZ95-1 突击步枪", img: "QBZ95-1 突击步枪.png" },
+{ name: "AKM 突击步枪", img: "AKM 突击步枪.png" },
+{ name: "AUG 突击步枪", img: "AUG 突击步枪.png" },
+{ name: "K437 突击步枪", img: "K437 突击步枪.png" },
+{ name: "PTR-32 突击步枪", img: "PTR-32 突击步枪.png" },
+{ name: "Car-15 突击步枪", img: "Car-15 突击步枪.png" },
+{ name: "AS Val 突击步枪", img: "AS Val 突击步枪.png" },
+{ name: "M7 战斗步枪", img: "M7 战斗步枪.png" },
+{ name: "Ash-12 战斗步枪", img: "Ash-12 战斗步枪.png" },
+{ name: "AK-12 突击步枪", img: "AK-12 突击步枪.png" },
+{ name: "MK47 突击步枪", img: "MK47 突击步枪.png" },
+{ name: "M4A1 突击步枪", img: "M4A1 突击步枪.png" },
+{ name: "K416 突击步枪", img: "K416 突击步枪.png" },
+{ name: "SCAR-H 战斗步枪", img: "SCAR-H 战斗步枪.png" },
+{ name: "G3 战斗步枪", img: "G3 战斗步枪.png" },
+{ name: "MCX LT 突击步枪", img: "MCX LT 突击步枪.png" },
+{ name: "野牛冲锋枪", img: "野牛冲锋枪.png" },
+{ name: "勇士冲锋枪", img: "勇士冲锋枪.png" },
+{ name: "SMG-45 冲锋枪", img: "SMG-45 冲锋枪.png" },
+{ name: "SR-3M 紧凑突击步枪", img: "SR-3M 紧凑突击步枪.png" },
+{ name: "uzi 冲锋枪", img: "uzi 冲锋枪.png" },
+{ name: "P90 冲锋枪", img: "P90 冲锋枪.png" },
+{ name: "Vector 冲锋枪", img: "Vector 冲锋枪.png" },
+{ name: "QCQ171 冲锋枪", img: "QCQ171 冲锋枪.png" },
+{ name: "MP7 冲锋枪", img: "MP7 冲锋枪.png" },
+{ name: "MP5 冲锋枪", img: "MP5 冲锋枪.png" },
+{ name: "MK4 冲锋枪", img: "MK4 冲锋枪.png" },
+{ name: "M249 轻机枪", img: "M249 轻机枪.png" },
+{ name: "PKM 通用机枪", img: "PKM 通用机枪.png" },
+{ name: "QJB21 轻机枪", img: "QJB21 轻机枪.png" },
+{ name: "M250 通用机枪", img: "M250 通用机枪.png" },
+{ name: "M14 射手步枪", img: "M14 射手步枪.png" },
+{ name: "SR9 射手步枪", img: "SR9 射手步枪.png" },
+{ name: "SR-25 射手步枪", img: "SR-25 射手步枪.png" },
+{ name: "PSG-1 射手步枪", img: "PSG-1 射手步枪.png" },
+{ name: "SKS 射手步枪", img: "SKS 射手步枪.png" },
+{ name: "mini-14 射手步枪", img: "mini-14 射手步枪.png" },
+{ name: "VSS 射手步枪", img: "VSS 射手步枪.png" },
+{ name: "杠杆式步枪", img: "杠杆式步枪.png" },
+{ name: "SVD 狙击步枪", img: "SVD 狙击步枪.png" },
+{ name: "AWM", img: "AWM.png" },
+{ name: "SV-98 狙击步枪", img: "SV-98 狙击步枪.png" },
+{ name: "M700 狙击步枪", img: "M700 狙击步枪.png" },
+{ name: "R93 狙击步枪", img: "R93 狙击步枪.png" },
+{ name: "725 双管霰弹枪", img: "725 双管霰弹枪.png" },
+{ name: "M1014 霰弹枪", img: "M1014 霰弹枪.png" },
+{ name: "M870 霰弹枪", img: "M870 霰弹枪.png" },
+{ name: "S12K 霰弹枪", img: "S12K 霰弹枪.png" },
+{ name: "FS-12 霰弹枪", img: "FS-12 霰弹枪.png" },
+{ name: "复合弓", img: "复合弓.png" }
+    ],
+    helmet: [
+        { name: "老式钢盔", img: "老式钢盔.png" },
+        { name: "安保头盔", img: "安保头盔.png" },
+        { name: "奔尼帽", img: "奔尼帽.png" },
+        { name: "户外棒球帽", img: "户外棒球帽.png" },
+        { name: "H01战术头盔", img: "H01战术头盔.png" },
+        { name: "DRO战术头盔", img: "DRO战术头盔.png" },
+        { name: "复古摩托头盔", img: "复古摩托头盔.png" },
+        { name: "MC防弹头盔", img: "MC防弹头盔.png" },
+        { name: "防爆头盔", img: "防爆头盔.png" },
+        { name: "H07战术头盔", img: "H07战术头盔.png" },
+        { name: "DAS防弹头盔", img: "DAS防弹头盔.png" },
+        { name: "MC201防弹头盔", img: "MC201防弹头盔.png" },
+        { name: "D6战术头盔", img: "D6战术头盔.png" },
+        { name: "MHS战术头盔", img: "MHS战术头盔.png" },
+        { name: "GT1战术头盔", img: "GT1战术头盔.png" },
+        { name: "DICH训练头盔", img: "DICH训练头盔.png" },
+        { name: "Mask-1铁壁头盔", img: "Mask-1铁壁头盔.png" },
+        { name: "GN久战重型夜视头", img: "GN久战重型夜视头.png" },
+        { name: "H09防爆头盔", img: "H09防爆头盔.png" },
+        { name: "GN重型头盔", img: "GN重型头盔.png" },
+        { name: "DICH-1战斗头盔", img: "DICH-1战斗头盔.png" },
+        { name: "GN重型夜视头盔", img: "GN重型夜视头盔.png" },
+        { name: "GT5指挥官头盔", img: "GT5指挥官头盔.png" },
+        { name: "DICH-9重型头盔", img: "DICH-9重型头盔.png" },
+        { name: "H70精英头盔", img: "H70精英头盔.png" }
+    ],
+    armor: [
+        { name: "摩托马甲", img: "摩托马甲.png" },
+        { name: "安保防弹衣", img: "安保防弹衣.png" },
+        { name: "尼龙防弹衣", img: "尼龙防弹衣.png" },
+        { name: "轻型防弹衣", img: "轻型防弹衣.png" },
+        { name: "简易防刺服", img: "简易防刺服.png" },
+        { name: "HT战术背心", img: "HT战术背心.png" },
+        { name: "TG战术防弹衣", img: "TG战术防弹衣.png" },
+        { name: "通用战术背心", img: "通用战术背心.png" },
+        { name: "制式防弹背心", img: "制式防弹背心.png" },
+        { name: "Hvk快拆防弹衣", img: "Hvk快拆防弹衣.png" },
+        { name: "TG-H防弹衣", img: "TG-H防弹衣.png" },
+        { name: "射手战术背心", img: "射手战术背心.png" },
+        { name: "HMP特勤防弹衣", img: "HMP特勤防弹衣.png" },
+        { name: "武士防弹背心", img: "武士防弹背心.png" },
+        { name: "突击手防弹背心", img: "突击手防弹背心.png" },
+        { name: "DT-AVS防弹衣", img: "DT-AVS防弹衣.png" },
+        { name: "MK-2战术背心", img: "MK-2战术背心.png" },
+        { name: "精英防弹背心", img: "精英防弹背心.png" },
+        { name: "Hvk-2防弹衣", img: "Hvk-2防弹衣.png" },
+        { name: "FS复合防弹衣", img: "FS复合防弹衣.png" },
+        { name: "重型突击背心", img: "重型突击背心.png" },
+        { name: "HA-2重型防弹衣", img: "HA-2重型防弹衣.png" },
+        { name: "泰坦防弹装甲", img: "泰坦防弹装甲.png" },
+        { name: "金刚防弹衣", img: "金刚防弹衣.png" },
+        { name: "特里克MAS2,0装甲", img: "特里克MAS2,0装甲.png" }
+    ]
+};
+
+// 设置相关全局变量
+let selectedItems = {
+    operator: [],
+    map: [],
+    primary: [],
+    helmet: [],
+    armor: []
+};
+
+// DOM元素获取
+const home = document.getElementById('home');
+const backBtn = document.getElementById('backBtn');
+const singlePanel = document.getElementById('singlePanel');
+const teamPanel = document.getElementById('teamPanel');
+const historyList = document.getElementById('historyList');
+const settingsPanel = document.getElementById('settingsPanel');
+const singleBtn = singlePanel.querySelector('.btn');
+const teamBtn = teamPanel.querySelector('.btn');
+
+// 初始化勾选状态（全部选中）
+function initSelectedItems() {
+    for (let type in data) {
+        selectedItems[type] = data[type].map(item => item.name);
+    }
+}
+
+// 初始化页面
+window.onload = function() {
+    initSelectedItems();
+// 在 window.onload 里加这段代码（放在 initSelectedItems 后面）
+window.onload = function() {
+    initSelectedItems();
+    renderSettingsList('operator');
+    renderSettingsList('map');
+    renderSettingsList('primary');
+    renderSettingsList('helmet');
+    renderSettingsList('armor');
+    
+    // 新增：给所有抽取前的卡片设默认图
+    const defaultImg = "默认卡片.png"; // 你自己找一张默认图，命名为这个
+    // 单人面板默认图
+    updateElement("s_op", defaultImg, "等待抽取");
+    updateElement("s_map", defaultImg, "等待抽取");
+    updateElement("s_wp", defaultImg, "等待抽取");
+    updateElement("s_ht", defaultImg, "等待抽取");
+    updateElement("s_ar", defaultImg, "等待抽取");
+    // 组队面板默认图
+    updateElement("t_map", defaultImg, "等待抽取");
+    updateElement("t1_op", defaultImg, "—");
+    updateElement("t1_wp", defaultImg, "—");
+    updateElement("t1_ht", defaultImg, "—");
+    updateElement("t1_ar", defaultImg, "—");
+    updateElement("t2_op", defaultImg, "—");
+    updateElement("t2_wp", defaultImg, "—");
+    updateElement("t2_ht", defaultImg, "—");
+    updateElement("t2_ar", defaultImg, "—");
+    updateElement("t3_op", defaultImg, "—");
+    updateElement("t3_wp", defaultImg, "—");
+    updateElement("t3_ht", defaultImg, "—");
+    updateElement("t3_ar", defaultImg, "—");
+};
+    // 预渲染设置列表，避免首次打开空白
+    renderSettingsList('operator');
+    renderSettingsList('map');
+    renderSettingsList('primary');
+    renderSettingsList('helmet');
+    renderSettingsList('armor');
+};
+
+// 返回首页
+function goBack() {
+    home.style.display = 'flex';
+    backBtn.style.display = 'none';
+    singlePanel.style.display = 'none';
+    teamPanel.style.display = 'none';
+    settingsPanel.style.display = 'none';
+}
+
+// 显示单人抽取面板
+function showSingle() {
+    home.style.display = 'none';
+    backBtn.style.display = 'inline-block';
+    singlePanel.style.display = 'grid';
+    teamPanel.style.display = 'none';
+    settingsPanel.style.display = 'none';
+}
+
+// 显示组队抽取面板
+function showTeam() {
+    home.style.display = 'none';
+    backBtn.style.display = 'inline-block';
+    singlePanel.style.display = 'none';
+    teamPanel.style.display = 'block';
+    settingsPanel.style.display = 'none';
+}
+
+// 显示设置面板
+function showSettings() {
+    home.style.display = 'none';
+    backBtn.style.display = 'inline-block';
+    singlePanel.style.display = 'none';
+    teamPanel.style.display = 'none';
+    settingsPanel.style.display = 'block';
+}
+
+// 渲染设置面板的勾选列表
+function renderSettingsList(type) {
+    const listElement = document.getElementById(`${type}List`);
+    if (!listElement) return;
+    
+    listElement.innerHTML = '';
+    
+    data[type].forEach(item => {
+        const checkboxDiv = document.createElement('div');
+        checkboxDiv.className = 'item-checkbox';
+        
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.id = `${type}_${item.name}`;
+        checkbox.value = item.name;
+        checkbox.checked = selectedItems[type].includes(item.name);
+        
+        const label = document.createElement('label');
+        label.htmlFor = `${type}_${item.name}`;
+        label.textContent = item.name;
+        
+        checkboxDiv.appendChild(checkbox);
+        checkboxDiv.appendChild(label);
+        listElement.appendChild(checkboxDiv);
+    });
+}
+
+// 全选/取消全选
+function selectAll(type) {
+    const checkboxes = document.querySelectorAll(`#${type}List input[type="checkbox"]`);
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = true;
+    });
+}
+
+function deselectAll(type) {
+    const checkboxes = document.querySelectorAll(`#${type}List input[type="checkbox"]`);
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = false;
+    });
+}
+
+// 保存设置
+function saveSettings() {
+    // 收集所有勾选的项目
+    for (let type in data) {
+        selectedItems[type] = [];
+        const checkboxes = document.querySelectorAll(`#${type}List input[type="checkbox"]:checked`);
+        checkboxes.forEach(checkbox => {
+            selectedItems[type].push(checkbox.value);
+        });
+        
+        // 防止全部取消勾选的情况
+        if (selectedItems[type].length === 0) {
+            alert(`⚠️ ${getTypeName(type)}不能全部取消勾选，已自动全选！`);
+            selectedItems[type] = data[type].map(item => item.name);
+            // 重新勾选所有选项
+            selectAll(type);
+        }
+    }
+    
+    alert('✅ 设置保存成功！');
+    goBack();
+}
+
+// 取消设置
+function cancelSettings() {
+    // 恢复勾选状态
+    renderSettingsList('operator');
+    renderSettingsList('map');
+    renderSettingsList('primary');
+    renderSettingsList('helmet');
+    renderSettingsList('armor');
+    goBack();
+}
+
+// 获取类型名称（用于提示）
+function getTypeName(type) {
+    const typeNames = {
+        operator: '干员',
+        map: '地图',
+        primary: '主武器',
+        helmet: '头盔',
+        armor: '护甲'
+    };
+    return typeNames[type] || type;
+}
+
+// 随机抽取函数（只从勾选的数据中抽取）
+function rand(arrType) {
+    // 获取勾选的数据列表
+    const filteredData = data[arrType].filter(item => selectedItems[arrType].includes(item.name));
+    
+    if (!filteredData || filteredData.length === 0) {
+        return { name: "暂无数据", img: "" };
+    }
+    return filteredData[Math.floor(Math.random() * filteredData.length)];
+}
+
+// 抽卡动画函数
+function startDrawAnimation(elements, duration = 1500) {
+    // 禁用按钮
+    if (elements.btn) elements.btn.disabled = true;
+    
+    // 给所有卡片添加动画类
+    elements.cards.forEach(card => {
+        const img = card.querySelector('img');
+        const name = card.querySelector('.name');
+        img.classList.add('animate-spin');
+        card.classList.add('animate-flash');
+        name.textContent = "抽取中...✨";
+    });
+
+    return new Promise(resolve => {
+        // 动画结束后移除动画类
+        setTimeout(() => {
+            elements.cards.forEach(card => {
+                const img = card.querySelector('img');
+                img.classList.remove('animate-spin');
+                card.classList.remove('animate-flash');
+            });
+            // 启用按钮
+            if (elements.btn) elements.btn.disabled = false;
+            resolve();
+        }, duration);
+    });
+}
+
+// 单人抽取逻辑
+async function drawSingle() {
+    // 获取所有单人卡片
+    const singleCards = singlePanel.querySelectorAll('.card');
+    // 启动抽卡动画
+    await startDrawAnimation({
+        cards: singleCards,
+        btn: singleBtn
+    });
+
+    // 随机抽取各项数据
+    const op = rand("operator");
+    const map = rand("map");
+    const wp = rand("primary");
+    const ht = rand("helmet");
+    const ar = rand("armor");
+
+    // 更新DOM显示
+    updateElement("s_op", op.img, op.name);
+    updateElement("s_map", map.img, map.name);
+    updateElement("s_wp", wp.img, wp.name);
+    updateElement("s_ht", ht.img, ht.name);
+    updateElement("s_ar", ar.img, ar.name);
+
+    // 添加历史记录
+    addHistory("单人", map.name, op.name, wp.name);
+}
+
+// 生成队员随机数据
+function generatePlayerData() {
+    return { 
+        op: rand("operator"), 
+        wp: rand("primary"), 
+        ht: rand("helmet"), 
+        ar: rand("armor") 
+    };
+}
+
+// 更新队员显示
+function updatePlayerDisplay(playerNum, playerData) {
+    updateElement(`t${playerNum}_op`, playerData.op.img, playerData.op.name);
+    updateElement(`t${playerNum}_wp`, playerData.wp.img, playerData.wp.name);
+    updateElement(`t${playerNum}_ht`, playerData.ht.img, playerData.ht.name);
+    updateElement(`t${playerNum}_ar`, playerData.ar.img, playerData.ar.name);
+}
+
+// 组队抽取逻辑
+async function drawTeam() {
+    // 获取所有组队卡片
+    const teamCards = teamPanel.querySelectorAll('.card');
+    // 启动抽卡动画
+    await startDrawAnimation({
+        cards: teamCards,
+        btn: teamBtn
+    });
+
+    // 统一地图
+    const map = rand("map");
+    
+    // 3名队员的随机数据
+    const p1 = generatePlayerData();
+    const p2 = generatePlayerData();
+    const p3 = generatePlayerData();
+
+    // 更新地图显示
+    updateElement("t_map", map.img, map.name);
+
+    // 更新队员显示
+    updatePlayerDisplay(1, p1);
+    updatePlayerDisplay(2, p2);
+    updatePlayerDisplay(3, p3);
+
+    // 添加历史记录
+    addHistory(`组队(3人)`, map.name, `${p1.op.name}/${p2.op.name}/${p3.op.name}`, `${p1.wp.name}/${p2.wp.name}/${p3.wp.name}`);
+}
+
+// 辅助函数：更新图片和文本显示
+function updateElement(id, imgSrc, text) {
+    const imgEl = document.getElementById(id);
+    const textEl = document.getElementById(`${id}_txt`);
+    
+    if (imgEl) {
+        // 设置默认占位图
+        imgEl.src = imgSrc || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="#fff0f5"/><text x="50" y="50" font-family="Arial" font-size="12" text-anchor="middle" fill="#ff6699">暂无图片</text></svg>';
+        imgEl.alt = text;
+        imgEl.onerror = function() {
+            this.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="#fff0f5"/><text x="50" y="50" font-family="Arial" font-size="12" text-anchor="middle" fill="#ff6699">图片加载失败 😢</text></svg>';
+        };
+    }
+    if (textEl) {
+        textEl.textContent = text;
+    }
+}
+
+// 添加历史记录
+function addHistory(type, mapName, op, wp) {
+    const d = new Date();
+    const time = `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
+    const item = document.createElement("div");
+    item.className = "history-item";
+    item.innerHTML = `[${time}] ${type} | 地图:<span>${mapName}</span> | 干员:<span>${op}</span> | 武器:<span>${wp}</span>`;
+    historyList.insertBefore(item, historyList.firstChild);
+    
+    // 限制历史记录数量（最多20条）
+    if (historyList.children.length > 20) {
+        historyList.removeChild(historyList.lastChild);
+    }
+}
+</script>
+
+</body>
+</html>
